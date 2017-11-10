@@ -60,10 +60,6 @@ def main():
 
     training_data = import_csv_data(driving_log)
 
-    angles = []
-    for k, v in training_data.items():
-        angles.append(v)
-
     dnn_model = model.build_model()
     dnn_model.fit_generator(
         generator=training_generator(training_data, batch_size=64),
