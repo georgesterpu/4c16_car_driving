@@ -15,6 +15,7 @@ from io import BytesIO
 
 from keras.models import load_model
 import lycon
+from utils import parse_position, preprocess_image, find_completion
 
 sio = socketio.Server()
 app = Flask(__name__)
@@ -26,20 +27,17 @@ MIN_SPEED = 10
 
 speed_limit = MAX_SPEED
 
-
-def preprocess_image(image):
-    IMAGE_WIDTH = 200
-    IMAGE_HEIGHT = 66
-    image = image[50:140, :, :]
-    image = lycon.resize(image, width=IMAGE_WIDTH, height=IMAGE_HEIGHT, interpolation=lycon.Interpolation.CUBIC)
-    return image
-
-
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
         # steering_angle = float(data["steering_angle"])
         # throttle = float(data["throttle"])
+
+        x, y, z = parse_position(data["Position"])
+        completion = find_completion([x,y,z])
+
+        print(completion * 100)
+
         speed = float(data["speed"])
         image = Image.open(BytesIO(base64.b64decode(data["image"])))
         try:
@@ -57,7 +55,7 @@ def telemetry(sid, data):
 
             throttle = 1.0 - steering_angle ** 2 - (speed / speed_limit) ** 2
 
-            print('{} {} {}'.format(steering_angle, throttle, speed))
+            # print('{} {} {}'.format(steering_angle, throttle, speed))
             send_control(steering_angle, throttle)
         except Exception as e:
             print(e)
