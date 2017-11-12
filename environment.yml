@@ -1,0 +1,9 @@
+name: 4c16
+channels:
+    - conda-forge
+dependencies:
+    - flask-socketio
+    - eventlet
+    - pip:
+        - keras
+        - lycon
