@@ -22,7 +22,7 @@ app = Flask(__name__)
 model = None
 prev_image_array = None
 
-MAX_SPEED = 35
+MAX_SPEED = 30
 MIN_SPEED = 10
 
 speed_limit = MAX_SPEED
@@ -117,5 +117,3 @@ if __name__ == '__main__':
 
     app = socketio.Middleware(sio, app)
     eventlet.wsgi.server(eventlet.listen(('', 4567)), app)
-
-
