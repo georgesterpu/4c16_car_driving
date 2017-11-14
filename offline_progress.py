@@ -7,11 +7,24 @@ from utils import find_completion
 def main():
     args = get_args()
     lap_data = load_lap_data(args.lap_data)
-    t = load_car_positions()
-    print("Loaded {} positions.".format(t.shape[0]))
+    track = load_car_positions()
+    print("Loaded {} positions.".format(track.shape[0]))
+    c = get_max_completion(track, lap_data)
+    print(c)
+
+def get_max_completion(t, l):
+    last_completion = -1
+    total_laps = 0
     for i in range(t.shape[0]):
         point = t[i, :]
-        # print(find_completion(point, lap_data))
+        new_completion = find_completion(point, l)
+        if (last_completion > 0.95 and new_completion < 0.5):
+            total_laps += 1
+        new_completion += total_laps
+        if (new_completion > last_completion):
+            last_completion = new_completion
+
+    return last_completion
 
 
 def get_args():
