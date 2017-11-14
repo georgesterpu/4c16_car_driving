@@ -125,9 +125,9 @@ if __name__ == '__main__':
         else:
             shutil.rmtree(args.image_folder)
             os.makedirs(args.image_folder)
-        print("RECORDING THIS RUN ...")
+        print("**** Recording images from this run to {}.".format(args.image_folder))
     else:
-        print("NOT RECORDING THIS RUN ...")
+        print("Image recording not enabled on this run.")
 
     app = socketio.Middleware(sio, app)
     eventlet.wsgi.server(eventlet.listen(('', 4567)), app)
