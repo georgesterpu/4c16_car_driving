@@ -27,6 +27,8 @@ MIN_SPEED = 10
 
 speed_limit = MAX_SPEED
 
+lap_definition = None
+
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
@@ -34,9 +36,10 @@ def telemetry(sid, data):
         # throttle = float(data["throttle"])
 
         x, y, z = parse_position(data["Position"])
-        completion = find_completion([x,y,z])
 
-        print(completion * 100)
+        if lap_definition is not None:
+            completion = find_completion([x,y,z], lap_definition)
+            sys.stderr.write("\rTrack position: {0:3.2f}%".format(completion * 100))
 
         speed = float(data["speed"])
         image = Image.open(BytesIO(base64.b64decode(data["image"])))
@@ -65,7 +68,6 @@ def telemetry(sid, data):
             image_filename = os.path.join(args.image_folder, timestamp)
             lycon.save(path='{}.jpg'.format(image_filename), image=image)
     else:
-
         sio.emit('manual', data={}, skip_sid=True)
 
 
@@ -93,9 +95,14 @@ if __name__ == '__main__':
         help='Path to model h5 file. Model should be on the same path.'
     )
     parser.add_argument(
-        'image_folder',
+        '--lap_data',
         type=str,
-        nargs='?',
+        default='',
+        help='Path to lap data (required for progress).'
+    )
+    parser.add_argument(
+        '--image_folder',
+        type=str,
         default='',
         help='Path to image folder. This is where the images from the run will be saved.'
     )
@@ -103,6 +110,13 @@ if __name__ == '__main__':
 
     # load model
     model = load_model(args.model)
+
+    if args.lap_data != '':
+        try:
+            lap_definition = np.load(args.lap_data)
+        except:
+            print("Failed to load " + args.lap_data + "; no progress reporting.")
+
 
     if args.image_folder != '':
         print("Creating image folder at {}".format(args.image_folder))

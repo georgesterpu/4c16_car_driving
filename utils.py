@@ -1,9 +1,6 @@
 import lycon
 import numpy as np
 
-lap = np.load('lap.npy')
-
-
 def parse_position(position_str):
 
     if position_str[0] == '(':
@@ -23,7 +20,9 @@ def preprocess_image(image):
     return image
 
 
-def find_completion(point, arr=lap):
+def find_completion(point, arr=None):
+    if arr is None:
+        return None
 
     N, _ = np.shape(arr)
     tmp = arr - point
