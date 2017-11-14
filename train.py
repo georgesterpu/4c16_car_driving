@@ -37,9 +37,10 @@ def training_generator(training_data, batch_size):
 
     while True:
         for idx, (k, v) in enumerate(training_data.items()):
-            decoded_image = lycon.load(k)
+            decoded_image = lycon.load(recordings_dir + k)
             decoded_image = decoded_image[50:140, :, :]
             decoded_image = lycon.resize(decoded_image, width=200, height=66, interpolation=lycon.Interpolation.CUBIC)
+            decoded_image = 2*image/255 - 1
 
             label = v
 
@@ -64,7 +65,7 @@ def main():
     dnn_model.fit_generator(
         generator=training_generator(training_data, batch_size=64),
         steps_per_epoch=len(training_data)//64,
-        epochs=10,
+        epochs=20,
         verbose=1,
         shuffle=True
     )
