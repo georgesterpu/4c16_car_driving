@@ -85,7 +85,7 @@ def disconnect(sid):
     output_path = 'car_positions.npz'
     print("\nConnection terminated - saving data to {}.".format(output_path))
     np.savez_compressed(output_path, recorded_points=np.asarray(recorded_points))
-    print("Data saved; press ctrl-C to exit.")
+    print("\n**** Data saved; press ctrl-C to exit.\n")
 
 
 def send_control(steering_angle, throttle):
