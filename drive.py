@@ -27,15 +27,19 @@ MIN_SPEED = 10
 
 speed_limit = MAX_SPEED
 
+recorded_points = []
 lap_definition = None
 
 @sio.on('telemetry')
 def telemetry(sid, data):
+    global recorded_points
+
     if data:
         # steering_angle = float(data["steering_angle"])
         # throttle = float(data["throttle"])
 
         x, y, z = parse_position(data["Position"])
+        recorded_points.append([x, y, z])
 
         if lap_definition is not None:
             completion = find_completion([x,y,z], lap_definition)
@@ -73,8 +77,15 @@ def telemetry(sid, data):
 
 @sio.on('connect')
 def connect(sid, environ):
-    print("connect ", sid)
+    print("Connection established (id: {}).".format(sid))
     send_control(0, 0)
+
+@sio.on('disconnect')
+def disconnect(sid):
+    output_path = 'car_positions.npz'
+    print("\nConnection terminated - saving data to {}.".format(output_path))
+    np.savez_compressed(output_path, recorded_points=np.asarray(recorded_points))
+    print("Data saved; press ctrl-C to exit.")
 
 
 def send_control(steering_angle, throttle):
